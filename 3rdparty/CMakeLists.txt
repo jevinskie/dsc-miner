@@ -1,3 +1,5 @@
+add_subdirectory(abseil-cpp)
+
 add_subdirectory(choma-cmake)
 
 set(FMT_DOC OFF)

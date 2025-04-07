@@ -9,11 +9,13 @@ set(FAST_CFLAGS ${FAST_CISH_FLAGS} ${COLOR_DIAGS} -fvectorize -flto=full -fvisib
 set(FAST_CXXFLAGS ${FAST_CFLAGS} -stdlib=libc++ -fno-rtti)
 set(FAST_LDFLAGS ${FAST_CXXFLAGS})
 
-# add_compile_options(${FAST_CXXFLAGS})
-# add_link_options(${FAST_LDFLAGS})
+add_compile_options(${FAST_CXXFLAGS})
+add_link_options(${FAST_LDFLAGS})
 
-add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O0)
-add_link_options(-fsanitize=address -O0)
+# add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O0)
+# add_link_options(-fsanitize=address -O0)
+
+set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(3rdparty)
 add_subdirectory(lib)

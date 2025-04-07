@@ -1,10 +1,12 @@
 #undef NDEBUG
 #include <cassert>
 
-#include <cstdint>
+#include "dsc-miner/dsc-miner.hpp"
 
 #include "dsc-miner/bitvec.hpp"
-#include "dsc-miner/dsc-miner.hpp"
+#include "dsc-miner/histogram.hpp"
+
+#include <cstdint>
 
 #include <fmt/format.h>
 
@@ -20,6 +22,7 @@ void mine_dsc(const fs::path &dsc_path) {
     assert(dsc);
     __block size_t total_sz = 0;
     __block BitVec bv{0x1'0000'0000ull};
+    __block Histogram<uint32_t, uint32_t> hist;
     dsc_enumerate_images(
         dsc, ^(const char *fpath, DyldSharedCacheImage *img_hndl, MachO *img_macho, bool *stop) {
             macho_enumerate_sections(
@@ -44,10 +47,12 @@ void mine_dsc(const fs::path &dsc_path) {
                     assert(memstream);
                     const uint8_t *const mhb  = memory_stream_get_raw_pointer(memstream);
                     const uint32_t *const txt = (uint32_t *)(mhb + txt_off);
-                    fmt::print("txt_off: {:d} first instrs: {:#010x} {:#010x} {:#010x}\n", txt_off,
+                    fmt::print("txt_off: {:d} first instrs: {:08x} {:08x} {:08x}\n", txt_off,
                                txt[0], txt[1], txt[2]);
                     for (size_t i = 0; i < num_words; ++i) {
-                        bv.set(txt[i]);
+                        const auto inst = txt[i];
+                        bv.set(inst);
+                        ++hist[inst];
                     }
                     total_sz += sect->size;
                 });
@@ -58,4 +63,6 @@ void mine_dsc(const fs::path &dsc_path) {
     const auto percent_used = ((double)num_unique / (double)0x1'0000'0000ull) * 100.0;
     fmt::print("bitvec popcount: {:d} % used: {:.3g} # instr / # unique: {:.3g}\n", num_unique,
                percent_used, (double)total_words / num_unique);
+    fmt::print("hist:\n{:s}\n", hist.string(8));
+    fmt::print("hist size: {:d}\n", hist.size());
 }
