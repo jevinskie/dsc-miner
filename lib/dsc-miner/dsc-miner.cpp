@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <mach-o/loader.h>
 #undef NDEBUG
 #include <cassert>
@@ -22,8 +23,6 @@ void mine_dsc(const fs::path &dsc_path) {
     dsc_enumerate_images(
         dsc, ^(const char *fpath, DyldSharedCacheImage *img_hndl, MachO *img_macho, bool *stop) {
             fmt::print("path: {:s}\n", fpath);
-            const auto memstream = macho_get_stream(img_macho);
-            assert(memstream);
             macho_enumerate_sections(
                 img_macho, ^(section_64 *sect, segment_command_64 *seg, bool *stop) {
                     assert(!strncmp(sect->segname, seg->segname, sizeof(seg->segname)));
@@ -33,8 +32,26 @@ void mine_dsc(const fs::path &dsc_path) {
                     if (strncmp(sect->sectname, "__text", sizeof(sect->sectname))) {
                         return;
                     }
-                    fmt::print("text size: {:d}\n", sect->size);
+                    fmt::print("text size: {:d} offset: {:#x}\n", sect->size, sect->offset);
                     assert(sect->size % 4 == 0);
+                    if (!sect->size) {
+                        return;
+                    }
+                    uint64_t txt_vmaddr{};
+                    fflush(stdout);
+                    assert(!macho_translate_fileoff_to_vmaddr(img_macho, sect->offset, &txt_vmaddr,
+                                                              nullptr));
+                    const uint64_t base = macho_get_base_address(img_macho);
+                    assert(txt_vmaddr >= base);
+                    const uint64_t txt_off = txt_vmaddr - base;
+                    const auto memstream   = macho_get_stream(img_macho);
+                    assert(memstream);
+                    const uint8_t *const mhb  = memory_stream_get_raw_pointer(memstream);
+                    const uint32_t *const mhw = (uint32_t *)mhb;
+                    const uint32_t *const txt = (uint32_t *)(mhb + txt_off);
+                    fmt::print("txt_off: {:d} first instrs: {:#010x} {:#010x} {:#010x}\n", txt_off,
+                               txt[0], txt[1], txt[2]);
+                    memory_stream_free(memstream);
                 });
         });
     dsc_free(dsc);
