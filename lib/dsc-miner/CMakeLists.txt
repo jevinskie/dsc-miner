@@ -1,5 +1,6 @@
 set(DSCM_SRC
     dsc-miner.cpp
+    utils.cpp
 )
 
 set(DSCM_HDR_STANDALONE
