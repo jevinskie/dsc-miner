@@ -17,6 +17,7 @@ void mine_dsc(const fs::path &dsc_path) {
     dsc_enumerate_files(dsc, ^(const char *fpath, size_t fsz, dyld_cache_header *hdr) {
         fmt::print("file: {:s} sz: {:d}\n", fpath, fsz);
     });
+    dsc_enumerate_images(dsc, ^(const char *fpath, DyldSharedCacheImage *img_hndl, MachO *img_macho,
+                                bool *stop) { fmt::print("path: {:s}\n", fpath); });
     dsc_free(dsc);
-    return;
 }
