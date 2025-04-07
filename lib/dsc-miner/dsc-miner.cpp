@@ -1,6 +1,9 @@
 #undef NDEBUG
 #include <cassert>
 
+#include <cstdint>
+
+#include "dsc-miner/bitvec.hpp"
 #include "dsc-miner/dsc-miner.hpp"
 
 #include <fmt/format.h>
@@ -15,9 +18,8 @@ namespace fs = std::filesystem;
 void mine_dsc(const fs::path &dsc_path) {
     DyldSharedCache *dsc = dsc_init_from_path(dsc_path.c_str());
     assert(dsc);
-    dsc_enumerate_files(dsc, ^(const char *fpath, size_t fsz, dyld_cache_header *hdr) {
-        fmt::print("file: {:s} sz: {:d}\n", fpath, fsz);
-    });
+    __block size_t total_sz = 0;
+    __block BitVec bv{0x1'0000'0000ull};
     dsc_enumerate_images(
         dsc, ^(const char *fpath, DyldSharedCacheImage *img_hndl, MachO *img_macho, bool *stop) {
             macho_enumerate_sections(
@@ -29,10 +31,11 @@ void mine_dsc(const fs::path &dsc_path) {
                     if (strncmp(sect->sectname, "__text", sizeof(sect->sectname))) {
                         return;
                     }
-                    assert(sect->size % 4 == 0);
+                    assert(sect->size % sizeof(uint32_t) == 0);
                     if (!sect->size) {
                         return;
                     }
+                    const size_t num_words    = sect->size / sizeof(uint32_t);
                     const uint64_t base       = macho_get_base_address(img_macho);
                     const uint64_t txt_vmaddr = sect->addr;
                     assert(sect->addr >= base);
@@ -43,6 +46,16 @@ void mine_dsc(const fs::path &dsc_path) {
                     const uint32_t *const txt = (uint32_t *)(mhb + txt_off);
                     fmt::print("txt_off: {:d} first instrs: {:#010x} {:#010x} {:#010x}\n", txt_off,
                                txt[0], txt[1], txt[2]);
+                    for (size_t i = 0; i < num_words; ++i) {
+                        bv.set(txt[i]);
+                    }
+                    total_sz += sect->size;
                 });
         });
+    const auto total_words = total_sz / sizeof(uint32_t);
+    fmt::print("total_sz: {:d} num instrs: {:d}\n", total_sz, total_words);
+    const auto num_unique   = bv.popcnt();
+    const auto percent_used = ((double)num_unique / (double)0x1'0000'0000ull) * 100.0;
+    fmt::print("bitvec popcount: {:d} % used: {:.3g} # instr / # unique: {:.3g}\n", num_unique,
+               percent_used, (double)total_words / num_unique);
 }
