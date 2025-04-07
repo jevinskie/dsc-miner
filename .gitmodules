@@ -1,0 +1,6 @@
+[submodule "3rdparty/fmt"]
+	path = 3rdparty/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "3rdparty/ChOma"]
+	path = 3rdparty/ChOma
+	url = https://github.com/opa334/ChOma

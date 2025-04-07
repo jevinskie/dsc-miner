@@ -4,5 +4,6 @@ cmake_policy(SET CMP0181 NEW)
 
 project(dsc-miner C CXX)
 
+add_subdirectory(3rdparty)
 add_subdirectory(lib)
 add_subdirectory(tools)
