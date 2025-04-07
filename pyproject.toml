@@ -1,0 +1,55 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=78.1.0", "setuptools-scm>=8.2.0"]
+
+[project]
+authors = [
+  {name = "Jevin Sweval", email = "jevinsweval@gmail.com"}
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.11"
+]
+dependencies = [
+  "rich>=14.0.0"
+]
+description = "Python bindings and utilities for dsc-miner"
+dynamic = ["version"]
+keywords = ["dyld_shared_cache", "apple", "xnu", "darwin", "macos", "dyld"]
+license = {text = "BSD-2-Clause"}
+name = "dsc-miner"
+readme = {file = 'README.md', content-type = 'text/markdown'}
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.15.0",
+  "pre-commit>=4.2.0",
+  "ruff>=0.11.4",
+  "ssort>=0.14.0"
+]
+
+[project.scripts]
+dsc-miner-py-util = "dsc_miner.tools.dsc_miner_util:main"
+
+[project.urls]
+repository = "https://github.com/jevinskie/dsc-miner"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.setuptools]
+package-dir = {"" = "python/src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "dsc_miner._version.__version__"}
+
+[tool.setuptools_scm]
+version_file = "python/src/dsc_miner/_version.py"
