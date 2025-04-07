@@ -39,9 +39,9 @@ void mine_dsc(const fs::path &dsc_path) {
                     }
                     uint64_t txt_vmaddr{};
                     fflush(stdout);
+                    const uint64_t base = macho_get_base_address(img_macho);
                     assert(!macho_translate_fileoff_to_vmaddr(img_macho, sect->offset, &txt_vmaddr,
                                                               nullptr));
-                    const uint64_t base = macho_get_base_address(img_macho);
                     assert(txt_vmaddr >= base);
                     const uint64_t txt_off = txt_vmaddr - base;
                     const auto memstream   = macho_get_stream(img_macho);
