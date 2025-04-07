@@ -21,3 +21,8 @@ set(CHOMA_SOURCES
 add_library(choma ${CHOMA_SOURCES})
 target_include_directories(choma PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(choma PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/choma)
+set_target_properties(choma PROPERTIES
+    C_STANDARD 23
+    C_EXTENSIONS ON
+    C_STANDARD_REQUIRED ON
+)
