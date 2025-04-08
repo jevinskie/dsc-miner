@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <iterator>
 #include <utility>
+#include <vector>
 
 #include <fmt/format.h>
 
@@ -75,12 +76,16 @@ void mine_dsc(const fs::path &dsc_path) {
     });
     std::reverse(instr_counts.begin(), instr_counts.end());
     std::vector<uint32_t> instr_counts_flat;
+    std::vector<uint32_t> instr_counts_instrs;
     instr_counts_flat.reserve(hist.size() * 2);
-    std::for_each(instr_counts.cbegin(), instr_counts.cend(), [&instr_counts_flat](const auto &p) {
+    instr_counts_instrs.reserve(hist.size());
+    std::for_each(instr_counts.cbegin(), instr_counts.cend(), [&](const auto &p) {
         instr_counts_flat.push_back(p.first);
         instr_counts_flat.push_back(p.second);
+        instr_counts_instrs.push_back(p.first);
     });
     write_file("instr-counts.bin", instr_counts_flat);
+    write_file("unique-instrs-sorted-by-frequency.bin", instr_counts_instrs);
 
     std::vector<uint32_t> unique_instrs;
     unique_instrs.reserve(hist.size());
