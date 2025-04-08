@@ -41,6 +41,7 @@ set(DSCM_PUBLIC_LIBS
 
 set(DSCM_PRIVATE_LIBS
     absl::flat_hash_map
+    capstone
     choma
     fmt::fmt
 )

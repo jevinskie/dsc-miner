@@ -7,3 +7,9 @@
 [submodule "3rdparty/abseil-cpp"]
 	path = 3rdparty/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp
+[submodule "3rdparty/binaryninja-api"]
+	path = 3rdparty/binaryninja-api
+	url = https://github.com/Vector35/binaryninja-api
+[submodule "3rdparty/capstone"]
+	path = 3rdparty/capstone
+	url = https://github.com/capstone-engine/capstone
