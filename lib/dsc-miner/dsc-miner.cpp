@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include <binja-arm64dis/arm64dis.h>
 #include <fmt/format.h>
 
 extern "C" {
@@ -84,8 +85,28 @@ void mine_dsc(const fs::path &dsc_path) {
         instr_counts_flat.push_back(p.second);
         instr_counts_instrs.push_back(p.first);
     });
-    write_file("instr-counts.bin", instr_counts_flat);
-    write_file("unique-instrs-sorted-by-frequency.bin", instr_counts_instrs);
+    // write_file("instr-counts.bin", instr_counts_flat);
+    // write_file("unique-instrs-sorted-by-frequency.bin", instr_counts_instrs);
+    const size_t num_instr_print = std::min(instr_counts_instrs.size(), (size_t)32);
+    for (size_t i = 0; i < num_instr_print; ++i) {
+        char dis_buf[1024];
+        const auto inst_word = instr_counts_instrs[i];
+        Instruction inst;
+        const auto res_decomp = aarch64_decompose(inst_word, &inst, 0);
+        if (res_decomp) {
+            fmt::print("top[{:d}]: {:08x} aarch64_decompose failed {:d}\n", i, inst_word,
+                       res_decomp);
+            continue;
+        }
+        const int res_dis = aarch64_disassemble(&inst, dis_buf, sizeof(dis_buf));
+        if (!res_dis) {
+            fmt::print("top[{:d}]: {:08x} {:s}\n", i, inst_word, dis_buf);
+        } else {
+            fmt::print("top[{:d}]: {:08x} aarch64_disassemble failed {:d}\n", i, inst_word,
+                       res_dis);
+        }
+    }
+    return;
 
     std::vector<uint32_t> unique_instrs;
     unique_instrs.reserve(hist.size());
