@@ -27,16 +27,9 @@ static inline std::string block_str(double percentage, unsigned int width) {
 
 template <typename K, typename V> class Histogram {
 public:
-    Histogram<K, V>() {}
-
-    V &operator[](K k) {
-        auto fk = m_h.find(k);
-        if (fk != m_h.end()) {
-            return fk->second;
-        } else {
-            auto [r, _] = m_h.insert({k, 0});
-            return r->second;
-        }
+    V &operator[](const K &k) {
+        auto [r, _] = m_h.try_emplace(k, 0);
+        return r->second;
     }
 
     size_t size() const {

@@ -1,4 +1,3 @@
-#include <bit>
 #undef NDEBUG
 #include <cassert>
 
@@ -68,6 +67,21 @@ void mine_dsc(const fs::path &dsc_path) {
                percent_used, (double)total_words / num_unique);
     // fmt::print("hist:\n{:s}\n", hist.string(8));
     fmt::print("hist size: {:d}\n", hist.size());
+
+    std::vector<std::pair<uint32_t, uint32_t>> instr_counts;
+    std::copy(hist.cbegin(), hist.cend(), std::back_inserter(instr_counts));
+    std::sort(instr_counts.begin(), instr_counts.end(), [](const auto a, const auto b) {
+        return a.second < b.second;
+    });
+    std::reverse(instr_counts.begin(), instr_counts.end());
+    std::vector<uint32_t> instr_counts_flat;
+    instr_counts_flat.reserve(hist.size() * 2);
+    std::for_each(instr_counts.cbegin(), instr_counts.cend(), [&instr_counts_flat](const auto &p) {
+        instr_counts_flat.push_back(p.first);
+        instr_counts_flat.push_back(p.second);
+    });
+    write_file("instr-counts.bin", instr_counts_flat);
+
     std::vector<uint32_t> unique_instrs;
     unique_instrs.reserve(hist.size());
     std::transform(hist.cbegin(), hist.cend(), std::back_inserter(unique_instrs),
