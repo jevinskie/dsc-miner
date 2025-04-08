@@ -46,7 +46,7 @@ set(DSCM_PRIVATE_LIBS
     fmt::fmt
 )
 
-# DSCM_HDR added for Xcode project generation
+# DSCM_HDR added for IDE project generation
 add_library(dsc-miner ${DSCM_SRC} ${DSCM_HDR})
 set_target_properties(dsc-miner PROPERTIES PUBLIC_HEADER "${DSCM_HDR}")
 
