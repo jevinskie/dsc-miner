@@ -1,9 +1,5 @@
 #pragma once
 
-#undef NDEBUG
-#include <cassert>
-
-#include <cstdint>
 #include <string>
 
 #include <absl/container/flat_hash_map.h>
