@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <span>
-#include <type_traits>
 #include <vector>
 
 bool write_file(const std::filesystem::path &path, const std::span<const uint8_t> buf);
